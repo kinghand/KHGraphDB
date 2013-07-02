@@ -31,33 +31,22 @@
             this.components = new System.ComponentModel.Container();
             KHGraphDBMS.KHCodeTextBox.CodeColorConfig codeColorConfig1 = new KHGraphDBMS.KHCodeTextBox.CodeColorConfig();
             this.panelBack = new System.Windows.Forms.Panel();
-            this.scroll = new System.Windows.Forms.Panel();
             this.codeTextBox = new KHGraphDBMS.KHCodeTextBox.CodeTextBox(this.components);
+            this.scroll = new System.Windows.Forms.Panel();
             this.panelBack.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelBack
             // 
             this.panelBack.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(62)))), ((int)(((byte)(66)))));
-            this.panelBack.Controls.Add(this.scroll);
             this.panelBack.Controls.Add(this.codeTextBox);
+            this.panelBack.Controls.Add(this.scroll);
             this.panelBack.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelBack.Location = new System.Drawing.Point(0, 0);
             this.panelBack.Name = "panelBack";
             this.panelBack.Padding = new System.Windows.Forms.Padding(8, 5, 5, 5);
             this.panelBack.Size = new System.Drawing.Size(632, 314);
             this.panelBack.TabIndex = 0;
-            // 
-            // scroll
-            // 
-            this.scroll.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(251)))), ((int)(((byte)(129)))), ((int)(((byte)(104)))));
-            this.scroll.Location = new System.Drawing.Point(0, 5);
-            this.scroll.Name = "scroll";
-            this.scroll.Size = new System.Drawing.Size(8, 53);
-            this.scroll.TabIndex = 1;
-            this.scroll.MouseDown += new System.Windows.Forms.MouseEventHandler(this.scroll_MouseDown);
-            this.scroll.MouseMove += new System.Windows.Forms.MouseEventHandler(this.scroll_MouseMove);
-            this.scroll.MouseUp += new System.Windows.Forms.MouseEventHandler(this.scroll_MouseUp);
             // 
             // codeTextBox
             // 
@@ -79,9 +68,23 @@
             this.codeTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.codeTextBox.Size = new System.Drawing.Size(619, 304);
             this.codeTextBox.TabIndex = 0;
-            this.codeTextBox.Text = "Select";
+            this.codeTextBox.Text = "";
             this.codeTextBox.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
+            this.codeTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.codeTextBox_KeyDown);
             this.codeTextBox.Resize += new System.EventHandler(this.codeTextBox_Resize);
+            // 
+            // scroll
+            // 
+            this.scroll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.scroll.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(251)))), ((int)(((byte)(129)))), ((int)(((byte)(104)))));
+            this.scroll.Location = new System.Drawing.Point(0, 5);
+            this.scroll.Name = "scroll";
+            this.scroll.Size = new System.Drawing.Size(10, 53);
+            this.scroll.TabIndex = 1;
+            this.scroll.MouseDown += new System.Windows.Forms.MouseEventHandler(this.scroll_MouseDown);
+            this.scroll.MouseMove += new System.Windows.Forms.MouseEventHandler(this.scroll_MouseMove);
+            this.scroll.MouseUp += new System.Windows.Forms.MouseEventHandler(this.scroll_MouseUp);
             // 
             // KHCodeTextArea
             // 

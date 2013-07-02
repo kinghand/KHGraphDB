@@ -19,16 +19,22 @@ namespace KHGraphDB.Structure
 
         Int64 _VertexCount;
 
+        private string _Name;
+
         #endregion
 
 
-        public Type():
-            this(null){
-        }
+        #region Constructors
 
-        public Type(IDictionary<string, object> theAttributes)
+        public Type():this(null,null){}
+
+        public Type(string ID) :this(ID, null) { }
+
+        public Type(IDictionary<string, object> theAttributes) : this(null, theAttributes) { }
+
+        public Type(string ID,IDictionary<string, object> theAttributes)
         {
-            InitDBObject(theAttributes);
+            InitDBObject(ID,theAttributes);
             InitType();
         }
 
@@ -61,8 +67,17 @@ namespace KHGraphDB.Structure
             } 
         }
 
+        public String Name
+        {
+            get { return _Name; }
+            set { _Name = value; }
+        }
+
+        #endregion
+
         public bool AddVertex(IVertex theVertex)
         {
+            if (theVertex == null) return false;
             if (!theVertex.Graph.Equals(_Graph)) return false;
             if (_Vertices.Contains(theVertex))
             {
@@ -93,6 +108,7 @@ namespace KHGraphDB.Structure
 
         public bool RemoveVertex(IVertex theVertex)
         {
+            if (theVertex == null) return false;
             if (_Vertices.Contains(theVertex))
             {
                 if(_Vertices.Remove(theVertex))
@@ -122,5 +138,14 @@ namespace KHGraphDB.Structure
 
             return nonRemovedVertices;
         }
+
+        #region override
+        public override string AttributesToString()
+        {
+            string s = "Name :" + this.Name + " - \n";
+            s += base.AttributesToString();
+            return s;
+        }
+        #endregion
     }
 }

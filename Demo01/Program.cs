@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using KHGraphDB.Structure;
 
 using KHGraphDB.Algorithm;
+using System.Windows.Forms;
+using KHGraphDB.Helper;
 
 namespace Demo01
 {
@@ -16,8 +18,9 @@ namespace Demo01
             Graph graph = new Graph();
 
             KHGraphDB.Structure.Type student = new KHGraphDB.Structure.Type(new Dictionary<string, object>(){
-                {"Name","Student"},
+                {"Name",null}, {"Num",null}
             });
+            student.Name = "Student";
 
             Vertex peiming = new Vertex(new Dictionary<string, object>(){
                 {"Name","Peiming"},
@@ -35,11 +38,13 @@ namespace Demo01
                 {"Age","21"}
             });
 
-            graph.AddType(student);
 
-            graph.AddVertex(peiming, student);
+            GraphHelper gHelper = new GraphHelper(graph);
+
+            gHelper.AddType(student);
+            gHelper.AddVertex(peiming, student);
             graph.AddVertex(yidong, student);
-            graph.AddVertex(weidong, student);
+            graph.AddVertex(weidong);
 
             Console.WriteLine(peiming.ToString());
             Console.WriteLine(yidong.ToString());
@@ -49,30 +54,40 @@ namespace Demo01
             Console.WriteLine(yidong.IncomingEdges.Count());
             Console.WriteLine(weidong.IncomingEdges.Count());
 
-            
 
-            Edge friendPY = new Edge(peiming, yidong, new Dictionary<string, object>(){
-                {"relationship","friend"},
+
+            Edge friendPY = new Edge(peiming, yidong, new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase){
+                {"friend",null},
             });
 
-            Edge friendYW = new Edge(yidong, weidong, new Dictionary<string, object>(){
-                {"relationship","friend"},
+            Edge friendYP = new Edge(yidong, peiming, new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase){
+                {"friend",null},
+            });
+
+            Edge friendYW = new Edge(yidong, weidong, new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase){
+                {"friend",10},
             });
 
             graph.AddEdge(friendPY);
+            graph.AddEdge(friendYP);
             graph.AddEdge(friendYW);
+
+            gHelper.AddEdge(peiming, weidong, new Dictionary<string, object>() { { "friend", null } });
 
             Console.WriteLine(peiming.InDegree);
             Console.WriteLine(peiming.OutDegree);
             Console.WriteLine(yidong.InDegree);
             Console.WriteLine(yidong.OutDegree);
+            Console.WriteLine(weidong.InDegree);
+            Console.WriteLine(weidong.OutDegree);
 
             Console.WriteLine(peiming.ToString());
             Console.WriteLine(yidong.ToString());
             Console.WriteLine(weidong.ToString());
 
-
+            Console.WriteLine(weidong["Name"]);
             Console.WriteLine("+++");
+
             BreadthFirstSearch bfs01 = new BreadthFirstSearch();
             var path = bfs01.Search(graph, peiming, weidong);
 
@@ -89,10 +104,26 @@ namespace Demo01
                 Console.WriteLine(v["Name"]);
             }
 
+            BreadthFirstSearch bfs03 = new BreadthFirstSearch();
+            path = bfs03.Search(graph, weidong, peiming);
 
+            if(null != path )
+            foreach (var v in path)
+            {
+                Console.WriteLine(v["Name"]);
+            }
+
+            
 
             Console.ReadKey(true);
 
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Form1 form = new Form1();
+            form.AddGraph(graph);
+            Application.Run(form);
+
+            
 
         }
     }
