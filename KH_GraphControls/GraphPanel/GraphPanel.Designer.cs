@@ -1,8 +1,8 @@
-﻿namespace KHGraphDBMS.KHCodeTextBox
+﻿namespace KH_GraphControls.GraphPanel
 {
-    partial class CodeTextBox
+    partial class GraphPanel
     {
-        /// <summary>
+        /// <summary> 
         /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
@@ -18,30 +18,20 @@
                 components.Dispose();
             }
             base.Dispose(disposing);
-            
         }
-
-        
 
         #region 组件设计器生成的代码
 
-        /// <summary>
+        /// <summary> 
         /// 设计器支持所需的方法 - 不要
         /// 使用代码编辑器修改此方法的内容。
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            // 
-            // CodeTextBox
-            // 
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CodeTextBox_KeyDown);
-            this.ResumeLayout(false);
-            
+            components = new System.ComponentModel.Container();
+            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         }
 
         #endregion
-
-        
     }
 }

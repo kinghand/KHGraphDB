@@ -31,23 +31,58 @@ namespace KHGraphDBMS.KHCodeTextBox
         [DllImport("user32")]
         private static extern int SendMessage(IntPtr hwnd, int wMsg, int wParam, IntPtr lParam);
 
+        public delegate void ControlEnterPress(object sender);
+        public event ControlEnterPress PressControlEnter = new ControlEnterPress(EnterPress);
+        private static void EnterPress(object sender) { ; }
+
+
+        List<string> lst = new List<string>();
+        private bool passChange = false;
+        private int UndoItr = 0;
+        private System.Timers.Timer timer = new System.Timers.Timer(1000);//实例化Timer
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            e.Graphics.DrawLine(new Pen(new SolidBrush(Colorconfig.BorderColor)), 0, 0, Width - 1, Height - 1);
-            e.Graphics.DrawRectangle(new Pen(new SolidBrush(Colorconfig.BorderColor)), 0, 0, Width - 1, Height - 1);
+
+        }
+
+        #region 定时器
+
+        public void theoutRefresh(object source, System.Timers.ElapsedEventArgs e)
+        {
+            passChange = false;
+        }
+
+        #endregion
+
+        private void CodeTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control)
+                switch (e.KeyCode)
+                {
+                    case Keys.Z:
+                        undo(); break;
+                    case Keys.Y:
+                        redo(); break;
+                    case Keys.Enter:
+                        PressControlEnter(this);
+                        break;
+                }
+
         }
 
         //重写OnTextChanged方法：
         protected override void OnTextChanged(EventArgs e)
         {
-            
             base.OnTextChanged(e);
+
             SendMessage(base.Handle, 0xB, 0, IntPtr.Zero);  //防止闪烁
-            int sIndex = this.SelectionStart;
+
+            int nIndex = this.GetCharIndexFromPosition(new Point(0, 0));
             int nSelectStart = this.SelectionStart;
             int nSelectLength = this.SelectionLength;
-            //while (sIndex < this.Text.Length)
+            #region//while (sIndex < this.Text.Length)
             //{
             //    int nIndex = 0;
             //    this.SelectAll();
@@ -75,6 +110,7 @@ namespace KHGraphDBMS.KHCodeTextBox
             //}
             //if (txtChangeNum > 1)
             //{
+            #endregion
                 this.SelectAll();
                 this.SelectionColor = Colorconfig.NormalWordColor;
                 foreach (string key in Colorconfig.Keyword.Keys)
@@ -85,13 +121,15 @@ namespace KHGraphDBMS.KHCodeTextBox
                 foreach (string key in Colorconfig.PreserveWord.Keys)
                 {
                     ChangeColor(key, Colorconfig.PreserveWordColor, Colorconfig.PreserveWord[key]);              //调用改变文字颜色的方法
-
                 }
+
                 ChangeColorString(Colorconfig.StringColor);
-                this.Select(sIndex, 0);
-                this.SelectionColor = Colorconfig.NormalWordColor;
-            //}
-            //else
+
+                #region
+                //this.Select(sIndex>=0?sIndex:0, 0);
+                //this.SelectionColor = Colorconfig.NormalWordColor;
+                //}
+                //else
             //{
             //    int seIndex = sIndex;
             //    if (sIndex > 0 && !char.IsWhiteSpace(this.Text[sIndex])) { sIndex -- ;}
@@ -112,10 +150,29 @@ namespace KHGraphDBMS.KHCodeTextBox
             //    this.Select(sIndex, 0);
             //    this.SelectionColor = colorconfig.NormalWordColor;
             //}
-            SendMessage(base.Handle, 0xB, 1, IntPtr.Zero);
+                #endregion
+            
+            this.Select(nIndex, 0);
+            this.ScrollToCaret();
+            this.SelectionColor = Colorconfig.NormalWordColor;
             this.Select(nSelectStart, nSelectLength);
+            SendMessage(base.Handle, 0xB, 1, IntPtr.Zero);
             this.Refresh();
 
+            if (passChange == true)
+            {
+                this.Select(nSelectStart, 0);
+                return;
+            }
+
+            if (lst.Count > 0)
+                try
+                {
+                    lst.RemoveRange(lst.Count - this.UndoItr + 1, this.UndoItr);
+                }
+                catch { }
+            lst.Add(this.Text);
+            this.UndoItr = 1;
         }
 
         //定义改变文字颜色的私有方法：
@@ -164,13 +221,50 @@ namespace KHGraphDBMS.KHCodeTextBox
         public CodeTextBox()
         {
             InitializeComponent();
+            
         }
 
         public CodeTextBox(IContainer container)
         {
             container.Add(this);
 
+
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(theoutRefresh);//到达时间的时候执行事件；
+            timer.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件
             InitializeComponent();
         }
+
+
+        public void undo()
+        {
+            passChange = true;
+            try
+            {
+                this.Text = lst[lst.Count - this.UndoItr - 1];
+                if (lst.Count - 1 > this.UndoItr)
+                    UndoItr++;
+            }
+            catch
+            {
+            }
+            timer.Start();
+
+        }
+
+        public void redo()
+        {
+            passChange = true;
+            try
+            {
+                if (this.UndoItr > 0)
+                    UndoItr--;
+                this.Text = lst[lst.Count - this.UndoItr - 1];
+            }
+            catch
+            {
+            }
+            timer.Start();
+        }
+
     }
 }

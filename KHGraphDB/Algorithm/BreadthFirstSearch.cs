@@ -8,8 +8,9 @@ using KHGraphDB.Structure.Interface;
 
 namespace KHGraphDB.Algorithm
 {
-    public class BreadthFirstSearch : Algorithm
+    public class BreadthFirstSearch : Algorithm , IAlgorithm
     {
+        #region Construct
         protected enum Color
         {
             GREEN, RED, WHITE
@@ -28,6 +29,10 @@ namespace KHGraphDB.Algorithm
         /// </summary>
         protected String PREDECESSOR_ATTRIBUTE_KEY;
 
+        #endregion
+
+        #region IAlgorithm
+
         public void BeginAlgorithm(IGraph theGraph)
         {
             COLOR_ATTRIBUTE_KEY         = KHID + "__color";
@@ -36,24 +41,25 @@ namespace KHGraphDB.Algorithm
             
             Parallel.ForEach<IVertex>(theGraph.Vertices, v =>
             {
-                v[COLOR_ATTRIBUTE_KEY] = Color.WHITE;
-                v[PREDECESSOR_ATTRIBUTE_KEY] = null;
-                v[DISTANCE_ATTRIBUTE_KEY] = Int32.MaxValue;
+                v.AlgorithmObjs[COLOR_ATTRIBUTE_KEY] = Color.WHITE;
+                v.AlgorithmObjs[PREDECESSOR_ATTRIBUTE_KEY] = null;
+                v.AlgorithmObjs[DISTANCE_ATTRIBUTE_KEY] = Int32.MaxValue;
             });
         }
-
-
 
         public void EndAlgorithm(IGraph theGraph)
         {
             Parallel.ForEach<IVertex>(theGraph.Vertices, v =>
             {
-                v.RemoveAttribute(COLOR_ATTRIBUTE_KEY);
-                v.RemoveAttribute(DISTANCE_ATTRIBUTE_KEY);
-                v.RemoveAttribute(PREDECESSOR_ATTRIBUTE_KEY);
+                v.RemoveAlgorithmObj(COLOR_ATTRIBUTE_KEY);
+                v.RemoveAlgorithmObj(DISTANCE_ATTRIBUTE_KEY);
+                v.RemoveAlgorithmObj(PREDECESSOR_ATTRIBUTE_KEY);
             });
         }
 
+        #endregion
+
+        #region Search
 
         public List<IVertex> Search(IGraph theGraph, IVertex theSource, IVertex theTarget, Func<IVertex, bool> theMatchingFunc = null)
         {
@@ -74,15 +80,15 @@ namespace KHGraphDB.Algorithm
 
             this.BeginAlgorithm(theGraph);
 
-            theSource[COLOR_ATTRIBUTE_KEY] = Color.RED;
-            theSource[PREDECESSOR_ATTRIBUTE_KEY] = null;
-            theTarget[COLOR_ATTRIBUTE_KEY] = Color.GREEN;
-            theTarget[PREDECESSOR_ATTRIBUTE_KEY] = null;
+            theSource.AlgorithmObjs[COLOR_ATTRIBUTE_KEY] = Color.RED;
+            theSource.AlgorithmObjs[PREDECESSOR_ATTRIBUTE_KEY] = null;
+            theTarget.AlgorithmObjs[COLOR_ATTRIBUTE_KEY] = Color.GREEN;
+            theTarget.AlgorithmObjs[PREDECESSOR_ATTRIBUTE_KEY] = null;
 
             // bool if matching function has to be called
             var doMatching = theMatchingFunc != null;
 
-            // used to indicate that the target node has been found
+            // used to indicate that the target vertex has been found
             var done = false;
 
             // use Concurrent Queue for parallel access
@@ -105,18 +111,18 @@ namespace KHGraphDB.Algorithm
                 //Parallel.ForEach<IEdge>(u.OutgoingEdges, outEdge =>
                 foreach (var outEdge in u.OutgoingEdges)
                 {
-                    // neighbour node
+                    // neighbour vertex
                     var v = outEdge.Target;
                     // get the color of that neighbour
-                    var color = (Color)v[COLOR_ATTRIBUTE_KEY];
+                    var color = (Color)v.AlgorithmObjs[COLOR_ATTRIBUTE_KEY];
 
                     if (color == Color.WHITE) // not the target
                     {
                         // set as visited (Color.RED)
-                        v[COLOR_ATTRIBUTE_KEY] = Color.RED;
+                        v.AlgorithmObjs[COLOR_ATTRIBUTE_KEY] = Color.RED;
                         // set the predecessor
-                        v[PREDECESSOR_ATTRIBUTE_KEY] = u;
-                        // and enqueue that node (if matching condition == true)
+                        v.AlgorithmObjs[PREDECESSOR_ATTRIBUTE_KEY] = u;
+                        // and enqueue that vertex (if matching condition == true)
                         if (doMatching)
                         {
                             // matches condition?
@@ -138,10 +144,10 @@ namespace KHGraphDB.Algorithm
                         // finished
                         done = true;
                         // set the predecessor
-                        v[PREDECESSOR_ATTRIBUTE_KEY] = u;
+                        v.SetAlgorithmObj(PREDECESSOR_ATTRIBUTE_KEY, u);
                     }
                 }
-                u[COLOR_ATTRIBUTE_KEY] = Color.RED;
+                u.AlgorithmObjs[COLOR_ATTRIBUTE_KEY] = Color.RED;
             }
 
             #endregion
@@ -154,7 +160,7 @@ namespace KHGraphDB.Algorithm
                 while (tmp != null)
                 {
                     path.Add(tmp);
-                    tmp = (IVertex)tmp[PREDECESSOR_ATTRIBUTE_KEY];
+                    tmp = (IVertex)tmp.AlgorithmObjs[PREDECESSOR_ATTRIBUTE_KEY];
                 }
 
                 if (Reverted)
@@ -170,12 +176,7 @@ namespace KHGraphDB.Algorithm
             return null;
         }
 
-
-
-
-
-
-
+        #endregion
 
     }
 }
